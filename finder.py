@@ -1,26 +1,67 @@
 from vagalume import lyrics
 import sqlite3
 
-#Criar BD MyLyrics
-conn = sqlite3.connect('mylyrics')
+# Criar BD MyLyrics
+conn = sqlite3.connect('mylyrics.db')
 cur = conn.cursor()
 
-#Esse módulo é para teste. o input virá diretamente dos dados do Deezer
+cur.execute('''
+            CREATE TABLE IF NOT EXISTS Artist
+            (id  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, artist TEXT);
+            ''')
+
+cur.execute('''
+            CREATE TABLE IF NOT EXISTS Translation
+            (id  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, letra TEXT);
+            ''')
+
+cur.execute('''
+            CREATE TABLE IF NOT EXISTS Lyrics
+            (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, song TEXT, lyric TEXT, artist_id INTEGER, translation_id INTERGER);
+            ''')
+
+# Esse módulo é para teste. o input virá diretamente dos dados do Deezer
 artist_name = input('Digite o nome do artista: ')
 song_name = input('Digite o nome da música: ')
 
 result = lyrics.find(artist_name, song_name)
 
 if result.is_not_found():
-    print('Song not sound')
+    print('Song not sound!')
 else:
-    print(result.song.name)
-    print(result.artist.name)
-    print(result.song.lyric)
+    print('Música: ', result.song.name)
+    print('Artista: ', result.artist.name)
+    # print(result.song.lyric)
+
+    lyric = result.song.lyric
+
+    cur.execute(
+        '''INSERT OR IGNORE INTO Artist (artist) VALUES ( ? )''', (artist_name, ))
+    cur.execute('''SELECT id FROM Artist WHERE artist = ? ''', (artist_name, ))
+    artist_id = cur.fetchone()[0]
+
+    cur.execute('''INSERT OR IGNORE INTO Lyrics (song, lyric, artist_id) VALUES ( ?, ?, ? )''',
+                (song_name, lyric, artist_id))
+
+    print('A letra foi salva no Bando de Dados!')
 
     translation = result.get_translation_to('pt-br')
     if not translation:
         print('Translation not found')
     else:
-        print(translation.name)
-        print(translation.lyric)
+        # print(translation.name)
+        # print(translation.lyric)
+
+        cur.execute('''INSERT OR IGNORE INTO Translation (letra) VALUES ( ? )''',
+                    (translation.lyric, ))
+        cur.execute('''SELECT id FROM Translation WHERE letra = ? ''',
+                    (translation.lyric, ))
+        translation_id = cur.fetchone()[0]
+        cur.execute('''INSERT OR IGNORE INTO Lyrics (translation_id) VALUES ( ? )''',
+                    (translation_id, ))
+        print('A tradução foi salva no banco de dados')
+
+conn.commit()
+cur.close()
+
+# Como fazer com que um artista com mais de uma música não se repita na tabela artist ???
