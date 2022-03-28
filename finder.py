@@ -31,35 +31,29 @@ if result.is_not_found():
 else:
     print('Música: ', result.song.name)
     print('Artista: ', result.artist.name)
-    # print(result.song.lyric)
 
     lyric = result.song.lyric
 
-    cur.execute(
-        '''INSERT OR IGNORE INTO Artist (artist) VALUES ( ? )''', (artist_name, ))
+    cur.execute('''INSERT OR IGNORE INTO Artist (artist) VALUES ( ? )''', (artist_name, ))
     cur.execute('''SELECT id FROM Artist WHERE artist = ? ''', (artist_name, ))
     artist_id = cur.fetchone()[0]
-
-    cur.execute('''INSERT OR IGNORE INTO Lyrics (song, lyric, artist_id) VALUES ( ?, ?, ? )''',
-                (song_name, lyric, artist_id))
-
-    print('A letra foi salva no Bando de Dados!')
 
     translation = result.get_translation_to('pt-br')
     if not translation:
         print('Translation not found')
     else:
-        # print(translation.name)
-        # print(translation.lyric)
-
         cur.execute('''INSERT OR IGNORE INTO Translation (letra) VALUES ( ? )''',
                     (translation.lyric, ))
         cur.execute('''SELECT id FROM Translation WHERE letra = ? ''',
                     (translation.lyric, ))
         translation_id = cur.fetchone()[0]
-        cur.execute('''INSERT OR IGNORE INTO Lyrics (translation_id) VALUES ( ? )''',
-                    (translation_id, ))
         print('A tradução foi salva no banco de dados')
+
+    cur.execute('''INSERT OR IGNORE INTO Lyrics (song, lyric, artist_id, translation_id) VALUES ( ?, ?, ?, ? )''',
+                (song_name, lyric, artist_id, translation_id))
+
+    print('A letra foi salva no Bando de Dados!')
+
 
 conn.commit()
 cur.close()
