@@ -1,4 +1,5 @@
 from vagalume import lyrics
+from tracks import songs, artist
 import sqlite3
 
 # Criar BD MyLyrics
@@ -21,8 +22,11 @@ cur.execute('''
             ''')
 
 # Esse módulo é para teste. o input virá diretamente dos dados do Deezer
-artist_name = input('Digite o nome do artista: ')
-song_name = input('Digite o nome da música: ')
+#artist_name = input('Digite o nome do artista: ')
+#song_name = input('Digite o nome da música: ')
+artist_name = artist
+song_name = songs
+
 
 result = lyrics.find(artist_name, song_name)
 
