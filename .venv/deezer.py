@@ -1,5 +1,5 @@
 import sqlite3
-from tracks import musicas
+from deezer_tk import musicas
 
 print(musicas)
 
