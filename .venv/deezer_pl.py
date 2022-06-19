@@ -34,3 +34,6 @@ if len(plquery) < 1:  # Para teste
 playlists_deezer = js["data"]
 playlist = next((x for x in playlists_deezer if x["title"] == plquery), None)
 playlist_id = playlist['id']
+
+
+
