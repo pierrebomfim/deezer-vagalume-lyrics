@@ -5,31 +5,19 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
-from deezer_pl import pl_name
+from deezer_pl import plquery
+from deezer_tk import tracks_list
+import vagalume
 import sqlite3
 
-#   **** **** Ultima versão  ********
-conn = sqlite3.connect('mylyrics.db')
+conn = sqlite3.connect('mydeezer.db')
 cur = conn.cursor()
-
-cur.execute('''SELECT song, lyric, id FROM Lyrics''')
-lyrics = cur.fetchall()
-for l in lyrics:
-    id = l[2]
-    #print(id)
-    cur.execute('''SELECT artist FROM Artist WHERE id = ?''', (id,))
-    artists = cur.fetchall()
-    for a in artists:
-        artist = a[0]
-    #print(artist)
-
 
 PAGE_HEIGHT = defaultPageSize[1]
 PAGE_WIDTH = defaultPageSize[0]
 styles = getSampleStyleSheet()
-Title = "Lyrics"
-pageinfo = " - Lyrics from Deezer Songs"
-
+Title = f"Playlist: {plquery}"
+pageinfo = " - Lyrics of Deezer Songs. Lyrics from api.vagalume.com.br."
 
 def myFirstPage(canvas, doc):
     canvas.saveState()
@@ -39,43 +27,44 @@ def myFirstPage(canvas, doc):
     canvas.drawString(inch, 0.75 * inch, "First Page / %s" % pageinfo)
     canvas.restoreState()
 
-
 def myLaterPages(canvas, doc):
     canvas.saveState()
     canvas.setFont('Times-Roman', 9)
     canvas.drawString(inch, 0.75 * inch, "Page %d %s" % (doc.page, pageinfo))
     canvas.restoreState()
 
-
-def go(lyrics):
-    doc = SimpleDocTemplate(f"{pl_name}.pdf")
-    Story = [Spacer(1, 2*inch)]
+def go():
+    doc = SimpleDocTemplate(f"{plquery}.pdf")
+    Story = [Spacer(1, 1*inch)]
     style = styles["Normal"]
-    for l in lyrics:
-        song = l[0]
-        lyric = l[1]
-        id = l[2]
-        s = Paragraph(song, style)
-        p = Paragraph(lyric, style)
 
-        cur.execute('''SELECT artist FROM Artist WHERE id = ?''', (id,))
-        artists = cur.fetchall()
-        for a in artists:
-            artist = a[0]
-        a = Paragraph(artist, style)
-
-        Story.append(s)
+    for track in tracks_list:
+        cur.execute('''SELECT id, title, artist FROM Tracks WHERE title = ?''', (track, ))
+        id = cur.fetchone()[0]
+        title = cur.fetchone()[1]
+        artist = cur.fetchone()[2]
+        cur.execute('''SELECT lyric FROM Lyrics WHERE track_id = ?''', (id, ))
+        try:
+            lyric = cur.fetchone()[0]
+        except:
+            print("Finished")
+        #print(id, title, lyric)
+        t = Paragraph(title, style)
+        l = Paragraph(lyric, style)
+        a = Paragraph(artist, style)        
+        Story.append(t)
         Story.append(a)
         Story.append(Spacer(1, 0.2*inch))
-        Story.append(p)
+        Story.append(l)
         Story.append(Spacer(1, 0.2*inch))
     doc.build(Story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
 
-
 if __name__ == "__main__":
-    go(lyrics)
+    go()
 
+conn.commit()
 cur.close()
 
-print(songs)
+
+
 # Pendência: Gerar nome da música automaticamente  ok!
