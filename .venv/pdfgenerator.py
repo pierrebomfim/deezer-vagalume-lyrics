@@ -47,7 +47,7 @@ def go():
         try:
             lyric = cur.fetchone()[0]
         except:
-            print("Finished")
+            print(' ')
         #print(id, title, lyric)
         t = Paragraph(title, style)
         l = Paragraph(lyric, style)
@@ -58,6 +58,7 @@ def go():
         Story.append(l)
         Story.append(Spacer(1, 0.2*inch))
     doc.build(Story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
+    print('\nPDF gerado com sucesso!!! ')
 
 if __name__ == "__main__":
     go()

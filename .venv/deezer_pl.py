@@ -11,7 +11,7 @@ if len(usuario) < 1:
     url = 'file:///C:/Users/pierr/OneDrive/Desktop/Deezer%20API/playlists.json'
 else:
     url = f'http://api.deezer.com/user/{usuario}/playlists'
-#print('Conectando à Deezer...')
+print('\nConectando à Deezer...\n')
 
 uh = urllib.request.urlopen(url)
 data = uh.read().decode()
@@ -24,8 +24,8 @@ playlists = js["data"]
 for p in playlists:
     pl_name = p["title"]
     n_tracks = p["nb_tracks"]
-    #print(pl_name, f' - {n_tracks} músicas')
-
+    print(pl_name, f' - {n_tracks} músicas')
+print('\n')
 plquery = input("Digite o nome da playlist: ")
 if len(plquery) < 1:  # Para teste
     plquery = "Ir. kelly Patricia"

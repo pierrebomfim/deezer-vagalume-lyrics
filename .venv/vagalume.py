@@ -7,8 +7,10 @@ import sqlite3
 conn = sqlite3.connect('mydeezer.db')
 cur = conn.cursor()
 
+print('\nConectando ao Vagalume.com.br...')
+
 n = 0
-tracks = tracks[:3]
+tracks = tracks[:3] # For test
 track_list = []
 for t in tracks:
     title_track = t["title"]
@@ -32,7 +34,8 @@ for t in tracks:
         lyric = js['mus'][0]['text']
     except:
         lyric = "Not Found"
-    #print(lyric)
+    print('\n------------------------------')
+    print(f'\nMúsica: {title_track} - \nArtista: {artist_track}', f'\nLetra: \n{lyric}')
     type = js['type']
  
     cur.execute('''SELECT id FROM Tracks WHERE title = ? ''', (title_track, ))
@@ -43,7 +46,9 @@ for t in tracks:
 
     # Falta nalisar como pegar a tradução. Código antigo tá no arquivo teste.py !!!!!
 
-    print(n, f'Letra da música {title_track} (artista?) adicionada ao Banco de Dados')
+    #print(n, f'Letra da música {title_track} (artista?) adicionada ao Banco de Dados')
+
+print('\nGerando PDF ...')
     
 cur.close()
 

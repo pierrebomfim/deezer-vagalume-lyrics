@@ -1,4 +1,4 @@
-#Recebe o id da playlist de deezer_pl.py, requisita dados da playlist e extrai as músicas. Salva em DB
+# Recebe o id da playlist de deezer_pl.py, requisita dados da playlist e extrai as músicas. Salva em DB
 
 from http.client import ImproperConnectionState
 import urllib.request
@@ -28,10 +28,12 @@ cur.execute('''
             ''')
 conn.commit()
 
-#API Deezer
+# API Deezer
 # url = f'http://api.deezer.com//playlist//{playlist_id}'  for test
 if playlist_id == 9287938602:
     url = 'file:///C:/Users/pierr/OneDrive/Desktop/Deezer%20API/9287938602.json'
+else:
+    url = f'http://api.deezer.com//playlist//{playlist_id}'
 #print("Aguarde! Conectando à API Deezer...")
 uh = urllib.request.urlopen(url)
 data = uh.read().decode()
@@ -39,19 +41,19 @@ js = json.loads(data)
 #print("Conexão com API estabelecida!")
 
 # Apenas para print de teste
-'''
+
 print('Playlist: ', js["title"])
 print('ID: ', playlist_id)
 tracks = js["tracks"]["data"]
-print('Músicas: ')
+print('\nMúsicas: ')
 n = 0
 for t in tracks:
     n = n + 1
     songs = t["title"]
     artist = t["artist"]["name"]
-    #print(n, songs, f'({artist})')
-'''
-#playlist's data
+    print(n, ' - ', songs, f'({artist})')
+
+# playlist's data
 title = js["title"]
 public = js["public"]
 is_loved = js["is_loved_track"]
@@ -59,12 +61,12 @@ collaborative = js["collaborative"]
 nb_tracks = js["nb_tracks"]
 creator = js["creator"]["name"]
 
-#Inserir dados na tabela Playlists
+# Inserir dados na tabela Playlists
 cur.execute(
-        '''INSERT OR IGNORE INTO Playlists (id_deezer, title, public, is_loved_track, collaborative, nb_tracks, creator) VALUES ( ?, ?, ?, ?, ?, ?, ? )''', (playlist_id, title, public, is_loved, collaborative, nb_tracks, creator))
+    '''INSERT OR IGNORE INTO Playlists (id_deezer, title, public, is_loved_track, collaborative, nb_tracks, creator) VALUES ( ?, ?, ?, ?, ?, ?, ? )''', (playlist_id, title, public, is_loved, collaborative, nb_tracks, creator))
 #print("Dados da playlist adicionado no DB")
 
-#Tracks's Data
+# Tracks's Data
 tracks_list = []
 tracks = js["tracks"]["data"]
 for t in tracks:
@@ -74,14 +76,15 @@ for t in tracks:
     explicit_lyrics = t["explicit_lyrics"]
     artist_track = t["artist"]["name"]
     album_track = t["album"]["title"]
-    #Pegar o id na tabela playlist, para correlacionar com a tabela tracks ( id auto com id deezer)
-    cur.execute('''SELECT id FROM Playlists WHERE id_deezer = ? ''', (playlist_id, ))
+    # Pegar o id na tabela playlist, para correlacionar com a tabela tracks ( id auto com id deezer)
+    cur.execute('''SELECT id FROM Playlists WHERE id_deezer = ? ''',
+                (playlist_id, ))
     pl_id = cur.fetchone()[0]
     conn.commit()
 
-    #Inserir dados na tabela Tracks
+    # Inserir dados na tabela Tracks
     cur.execute(
-            '''INSERT OR IGNORE INTO Tracks (id_deezer, title, explicit_lyrics, artist, album, playlists_id) VALUES ( ?, ?, ?, ?, ?, ?)''', (id_track_deezer, title_track, explicit_lyrics, artist_track, album_track, pl_id))
+        '''INSERT OR IGNORE INTO Tracks (id_deezer, title, explicit_lyrics, artist, album, playlists_id) VALUES ( ?, ?, ?, ?, ?, ?)''', (id_track_deezer, title_track, explicit_lyrics, artist_track, album_track, pl_id))
     conn.commit()
 #print("Dados das músicas adicionados ao DB")
 
