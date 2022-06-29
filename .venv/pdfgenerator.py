@@ -17,7 +17,7 @@ PAGE_HEIGHT = defaultPageSize[1]
 PAGE_WIDTH = defaultPageSize[0]
 styles = getSampleStyleSheet()
 Title = f"Playlist: {plquery}"
-pageinfo = " - Lyrics of Deezer Songs. Lyrics from api.vagalume.com.br."
+pageinfo = " - Lyrics of Deezer Songs. Lyrics from api.vagalume.com.br. DEV Pierre Bomfim"
 
 def myFirstPage(canvas, doc):
     canvas.saveState()
