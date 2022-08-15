@@ -39,15 +39,25 @@ def go():
     style = styles["Normal"]
 
     for track in tracks_list:
-        cur.execute('''SELECT id, title, artist FROM Tracks WHERE title = ?''', (track, ))
-        id = cur.fetchone()[0]
-        title = cur.fetchone()[1]
-        artist = cur.fetchone()[2]
+        cur.execute('''SELECT id_deezer, title, artist FROM Tracks WHERE title = ?''', (track, ))
+        try:
+            id = cur.fetchone()[0]
+        except:
+            id = 'NotFound'
+        try:
+            title = cur.fetchone()[1]
+        except:
+            title = 'NotFound'
+        try:
+            artist = cur.fetchone()[2]
+        except:
+            artist = 'NotFound'
+
         cur.execute('''SELECT lyric FROM Lyrics WHERE track_id = ?''', (id, ))
         try:
             lyric = cur.fetchone()[0]
         except:
-            print(' ')
+            lyric = 'lyric not found'
         #print(id, title, lyric)
         t = Paragraph(title, style)
         l = Paragraph(lyric, style)
@@ -64,7 +74,7 @@ if __name__ == "__main__":
     go()
 
 conn.commit()
-cur.close()
+cur.close() 
 
 
 
